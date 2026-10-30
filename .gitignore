@@ -1,0 +1,9 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+# RedNet project files (do not ignore)
+!/index.html
+!/login.html
+!/main.py
+!/main copy.py
+!/rednet.db
+!/README.md
+!/.gitignore

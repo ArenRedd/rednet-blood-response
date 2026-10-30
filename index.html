@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>REDNET - Blood Donor Network</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+            color: #222;
+        }
+
+        header {
+            background: #c40000;
+            color: white;
+            padding: 18px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .tagline {
+            font-size: 14px;
+        }
+
+        .hero {
+            background: white;
+            padding: 50px 7%;
+            text-align: center;
+        }
+
+        .hero h1 {
+            color: #c40000;
+            font-size: 38px;
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            color: #666;
+            font-size: 17px;
+        }
+
+        .search-box {
+            width: 90%;
+            max-width: 850px;
+            margin: 30px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .search-box h2 {
+            margin-bottom: 20px;
+            color: #c40000;
+        }
+
+        .fields {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+            background: white;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            background: #c40000;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #a00000;
+        }
+
+        #results {
+            width: 90%;
+            max-width: 850px;
+            margin: 20px auto 50px;
+        }
+
+        .donor-card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .donor-card h3 {
+            color: #c40000;
+            margin-bottom: 8px;
+        }
+
+        .blood {
+            font-size: 22px;
+            font-weight: bold;
+            color: #c40000;
+        }
+
+        .available {
+            color: green;
+            font-weight: bold;
+        }
+
+        .not-found {
+            background: white;
+            padding: 25px;
+            text-align: center;
+            border-radius: 12px;
+        }
+
+        footer {
+            background: #222;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        @media (max-width: 700px) {
+            .fields {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 30px;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">🩸 REDNET</div>
+    <div class="tagline">Blood Donor Network</div>
+</header>
+
+<section class="hero">
+    <h1>Find a Blood Donor</h1>
+    <p>Connect with available blood donors near you.</p>
+</section>
+
+<section class="search-box">
+
+    <h2>Search Blood Donors</h2>
+
+    <div class="fields">
+
+        <select id="bloodGroup">
+            <option value="">Select Blood Group</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+        </select>
+
+        <select id="district">
+            <option value="">Select District</option>
+            <option value="thiruvarur">Thiruvarur</option>
+            <option value="Thanjavur">Thanjavur</option>
+            <option value="Erode">Erode</option>
+        </select>
+
+        <select id="city">
+            <option value="">Select City</option>
+            <option value="Thiruthuraipoondi">Thiruthuraipoondi</option>
+            <option value="Thiruvarur">Thiruvarur</option>
+        </select>
+
+    </div>
+
+    <button onclick="searchDonors()">
+        🔍 Search Donors
+    </button>
+
+</section>
+
+<section id="results"></section>
+
+<footer>
+    REDNET © 2026 — Blood Donor Network
+</footer>
+
+<script>
+
+async function searchDonors() {
+
+    const bloodGroup =
+        document.getElementById("bloodGroup").value;
+
+    const district =
+        document.getElementById("district").value;
+
+    const city =
+        document.getElementById("city").value;
+
+    const results =
+        document.getElementById("results");
+
+    if (!bloodGroup || !district || !city) {
+        results.innerHTML = `
+            <div class="not-found">
+                Please select blood group, district and city.
+            </div>
+        `;
+        return;
+    }
+
+    try {
+
+        const url =
+            `/donors/search?blood_group=${encodeURIComponent(bloodGroup)}&district=${encodeURIComponent(district)}&city=${encodeURIComponent(city)}`;
+
+        const response = await fetch(url);
+
+        const data = await response.json();
+
+        if (data.count === 0) {
+
+            results.innerHTML = `
+                <div class="not-found">
+                    <h3>No Available Donor Found</h3>
+                    <p>Try another blood group or location.</p>
+                </div>
+            `;
+
+            return;
+        }
+
+        results.innerHTML = `
+            <h2 style="margin-bottom:15px;">
+                ${data.count} Donor(s) Found
+            </h2>
+        `;
+
+        data.donors.forEach(donor => {
+
+            results.innerHTML += `
+                <div class="donor-card">
+
+                    <h3>${donor.name}</h3>
+
+                    <p class="blood">
+                        ${donor.blood_group}
+                    </p>
+
+                    <p>
+                        ${donor.city}, ${donor.district}
+                    </p>
+
+                    <p class="available">
+                        ● Available
+                    </p>
+
+                </div>
+            `;
+
+        });
+
+    } catch (error) {
+
+        results.innerHTML = `
+            <div class="not-found">
+                Unable to connect to REDNET server.
+            </div>
+        `;
+
+        console.error(error);
+    }
+}
+
+</script>
+
+</body>
+</html>
